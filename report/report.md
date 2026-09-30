@@ -1,6 +1,6 @@
 # 01_Schema Design
 
-Tables:
+### Tables:
 
 >
 > Tables : [bank_class](#bank_class), [branch_service_type](#branch_service_type), [cbsa](#cbsa), [country](#country)
@@ -9,7 +9,7 @@ Tables:
 
 <details >
 
-#### bank_class
+#### [bank_class](#Tables)
 
 ```sql
 CREATE TABLE banks_analysis.bank_class (
@@ -19,7 +19,7 @@ CREATE TABLE banks_analysis.bank_class (
 );
 ```
 
-#### branch_service_type
+#### [branch_service_type](#Tables)
 ```sql
 CREATE TABLE banks_analysis.branch_service_type (
 	service_type int4 NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE banks_analysis.branch_service_type (
 	CONSTRAINT branch_service_type_pkey PRIMARY KEY (service_type)
 );
 ```
-#### cbsa
+#### [cbsa](#Tables)
 ```sql
 CREATE TABLE banks_analysis.cbsa (
 	cbsa_code int4 NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE banks_analysis.cbsa (
 );
 ```
 
-#### country
+#### [country](#Tables)
 ```sql
 CREATE TABLE banks_analysis.country (
 	country_code int4 GENERATED ALWAYS AS IDENTITY( INCREMENT BY 1 MINVALUE 1 MAXVALUE 2147483647 START 1 CACHE 1 NO CYCLE) NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE banks_analysis.country (
 );
 ```
 
-#### county
+#### [county](#Tables)
 ```sql
 CREATE TABLE banks_analysis.county (
 	stcntyfip bpchar(5) NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE banks_analysis.county (
 );
 ```
 
-#### geocode_result
+#### [geocode_result](#Tables)
 ```sql
 CREATE TABLE banks_analysis.geocode_result (
 	uninumbr int8 NOT NULL,
@@ -80,7 +80,7 @@ CREATE TABLE banks_analysis.geocode_result (
 );
 ```
 
-#### institution
+#### [institution](#Tables)
 ```sql
 CREATE TABLE banks_analysis.institution (
 	cert int4 NOT NULL,
@@ -106,7 +106,7 @@ CREATE TABLE banks_analysis.institution (
 );
 ```
 
-#### office
+#### [office](#Tables)
 ```sql
 CREATE TABLE banks_analysis.office (
 	uninumber int8 NOT NULL,
@@ -133,7 +133,7 @@ CREATE TABLE banks_analysis.office (
 );
 ```
 
-#### regulator_codes
+#### [regulator_codes](#Tables)
 ```sql
 CREATE TABLE banks_analysis.regulator_codes (
 	regagnt text NOT NULL,
@@ -142,7 +142,7 @@ CREATE TABLE banks_analysis.regulator_codes (
 );
 ```
 
-#### states
+#### [states](#Tables)
 ```sql
 CREATE TABLE banks_analysis.states (
 	state_fip int4 NOT NULL,
@@ -154,6 +154,10 @@ CREATE TABLE banks_analysis.states (
 ```
 
 </details>
+
+### Indexes
+>
+> Indexes that I created can be found **[here](../sql/1_02.sql)**
 
 # 02_Loading and Cleaning
 
