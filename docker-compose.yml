@@ -1,12 +1,15 @@
 services:
   postgres:
-    image: postgres:latest
-    container_name: shop-postgres
+    image: postgres:17
     environment:
-      POSTGRES_DB: shop
-      POSTGRES_USER: shop
-      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: fdic
+      POSTGRES_USER: analyst
+      POSTGRES_PASSWORD: analyst
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+      - ./sql:/sql:ro
+      - ./data:/import:ro
+volumes:
+  pgdata:
