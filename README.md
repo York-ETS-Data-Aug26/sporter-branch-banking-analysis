@@ -5,6 +5,7 @@
 > 
 > - Docker
 > - IDE
+> - DBeaver or SQL editor
 > - Imports (Command to run down below)
 
 
