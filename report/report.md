@@ -353,4 +353,9 @@ Disadvantages:
 - Dealing with time changes would be difficult
 - A merge could happen right before the report
   - and something could happen with the generation of the report
+[05_01](../sql/5_01.sql)
+
+# Bank service types
+
+[05_05](../sql/5_05.sql)
 
