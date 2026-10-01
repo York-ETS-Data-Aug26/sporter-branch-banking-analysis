@@ -1,4 +1,4 @@
-SET search_name TO banks_analysis;
+SET search_path TO banks_analysis;
 
 EXPLAIN ANALYZE
 SELECT *
@@ -27,7 +27,7 @@ WHERE i.asset >= 1000000000;
 	-- Figuring it wont be faster with index
 
 CREATE INDEX examining_assets
-ON institution(asset)
+ON institution(asset);
 
 EXPLAIN ANALYZE
 SELECT i.namefull, i.asset
@@ -37,5 +37,4 @@ WHERE i.asset >= 1000000000;
 	-- Bitmap Index Scan | Planning Time: 0.303 ms | Execution Time: 0.130 ms
 
 -- This isn't where I thought it was going to go. I thought it was going to be a seq scan
--- but this makes sense since its still going through thousands of rows.
-WHERE asset >= 1000000000;
+-- but this makes sense since its still going throug thousands of rows.

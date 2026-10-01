@@ -161,4 +161,196 @@ CREATE TABLE banks_analysis.states (
 
 # 02_Loading and Cleaning
 
+### Cleaning Information
+Most of the text values that were **fully** numbers were turned into integers, bigints,
+or numericals. Where it was 0 or 1's that's where I turned them into booleans for determining
+Main branches or just offices. I had to pad `state_fip` and `county_fip` as I derived
+them from `stncnty` for the branches. All of the text values were trimmed whether they were being turned
+to numerical values or booleans.
+
+### Reconciliation
+
+Can be found **[here](../sql/2_02.sql)**
+
+For what I think happened in each case, though in some cases I believe that
+it has to do with the repdte column:
+
+7213	Citibank, National Association
+17985	First Hawaiian Bank
+18053	Bank of Hawaii
+33653	Bank of China: They created a new bank where all their office deposits were put into another bank instituion under the same name
+33652	Bank of China: explained above
+28100	Iberiabank: 
+20884	Bank of Guam
+5615	Chambers Bank
+57815	Banesco USA
+30692	BankPacific, Ltd:
+33681	Unknown: Bank of Baroda: Only had one office
+4170	The First National Bank and Trust Company of Okmulgee
+1100	Peoples State Bank of Plainview
+
+### Re-runability 
+
+# 03_Derived Structures
+
+| Type | Name                     | Description/Reasoning                                                                                                                                        |
+|------|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| view | office_deposits          | Didn't want to copy information as it could affect performance, but is generally want information someone would want to look at from an analysis standpoint. |
+| view | institution_summary      | Similiar to the institution table, but contains some of the office elements as well. (Surface level)                                                         | * but is generally want information someone would want to look at from an analysis standpoint. |                          |                                                                                                                                                              |
+                                                                                                                                                     |
+| view | institution_market_share | Deposit market share per institution per metropolitan area - institution_market_share                                                                        |
+| view | data_quality_summary     | Using normalized values, this gives a report when needed of table values. View because wouldn't use consistently.                                            |
+
+# DIRECTED ANALYSIS
+
+Keys, dependencies, and redundancy. 
+Which columns can serve as a primary key for an office, 
+and which for an institution? Which columns hold the same value for every row in the file? 
+Which are fully determined by another column? Which describe an individual office rather than the 
+institution, despite a name that suggests otherwise? 
+
+### Keys, dependencies, and redundancy
+
+For the primary keys, since they have to be unique and non-repetitive, I chose distinctive columns that
+corresponded to the tables (Office and Institution)[^1].
+
+[^1]: The primary keys could also be made in combination with another column and that
+can then be made distinctive. They would both have to be non-null as well.
+
+- Office : **`UNINUMBR`**
+- Institution : **`CERT`**
+
+~~~~sql
+-- for office primary key
+SELECT
+    count(*) as total_rows,
+    count(DISTINCT uninumbr) as distinct_uninumbr,
+    count(*) - count(Distinct uninumbr) as duplicate_count
+FROM staging s;
+~~~~
+~~~~sql
+-- for institution primary key
+SELECT
+    count(*) as total_rows,
+    count(DISTINCT cert) as distinct_cert,
+    count(*) - count(DISTINCT cert) as duplicate_count
+FROM staging s;
+~~~~
+
+**The column(s) that hold the same value for every row in the file were:**
+
+`REPDTE` is constant through all rows as it appears that all the reports in the initial
+file were all formulated on the same day. It's not helpful when it comes to distinguishing office vs.
+institution. 
+
+| COlUMN_NAME | DESCRIPTION                                                                            |
+|-------------|----------------------------------------------------------------------------------------|
+| REPDTE      | Not defined in the FDIC variable list. The reporting date of the survey                |
+| DENOVO      | A flag used to indicate whether an Institution is a new Institution (not a Recharter). |
+
+~~~~sql
+-- code that can be repeated for each column
+SELECT
+    count(DISTINCT repdte)
+FROM staging s;
+
+SELECT count(*) AS row_count,
+	count(DISTINCT s.repdte ) AS distinct_values,
+	min(s.repdte ) AS value,
+	max(s.repdte) AS value2
+FROM staging s;
+~~~~
+
+**The column(s) that were fully determined by another column from normalization:**
+
+| COLUMN_NAME | DESCRIPTION                                                        | DERIVED_FROM |
+|-------------|--------------------------------------------------------------------|--------------|
+| STATE_FIP   | 2 digit code to determine what states the branches were located in | STCNTYBR     |
+| COUNTY_FIP  | 3 digit code to determine what county the branches were located in | STCNTYBR     |
+
+**The column(s) that were fully determined by another column from staging:**
+
+
+| COLUMN_NAME | DERIVED_FROM |
+|-------------|--------------|
+| CBSANAMB    | CBSABR       |
+| STNAMEBR    | STALPBR      |
+| CNTYNAMB    | STCNTYBR     |
+| STALPBR     | STCNTYBR     |
+
+[04_01 Evidence](../sql/4_01.sql)
+
+### Branch networks and deposits
+
+- Wells Fargo
+- Chase Bank
+- Bank of America
+
+Interestingly, the office count between the top 10 and top 100
+corresponded with their office market share.
+
+[4_02 Evidence](../sql/4_02.sql)
+
+### Local markets and where deposits sit.
+
+>
+> I applied the minimum threshold as 1,000,000 (million).
+> I understand that this is subjective as numbers began to skew
+> and there wasn't much data to select from
+
+
+The number one result was: New York-Newark-Jersey City, NY-NJ-PA
+
+That made sense on the surface (seeing New York) but it also looked
+like a combination of boroughs.
+
+[4_03 Evidence](../sql/4_03.sql)
+
+### The geocoded coordinates
+
+There were three values in the status column
+- T
+- M
+- NULL (I decided to make this null as I didn't want to assume anything).
+
+Where the score is 0, the status is NULL
+
+### The geocoded coordinates
+
+The lengths of the latitudes and longitudes:
+min_lat: 5.307	
+max_lat: 71.2926190000	
+
+min_long: -170.7195770000
+max_long: 170.855
+
+They vary in precision.
+
+-- duplicate pairs 1,4768
+-- offices_sharing 3,423
+-- most_in_same 19
+-- least in same 2
+
+Matches & Status:
+49	
+1654	T
+93022	M
+
+# 05_Open-Ended_Analysis
+
+1. I would seperate them by date
+2. Would have old bank history from previous year, so cert from the previous year would hold
+3. Add a timestamp to the repdte column. Different times around the US
+Advantages:
+
+- Can see merges and take-overs of banks.
+- Accurate snapshot of the market
+- How reporting times affect the numbers
+
+Disadvantages:
+
+- The querying of data would be large
+- Dealing with time changes would be difficult
+- A merge could happen right before the report
+  - and something could happen with the generation of the report
 
