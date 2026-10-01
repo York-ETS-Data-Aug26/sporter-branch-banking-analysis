@@ -1,9 +1,9 @@
 # Banking Analysis
 
 ## Setup
-> It would be useful to have
+> It would be useful to have:
 > 
-> - Docker
+> - Docker Desktop
 > - IDE
 > - DBeaver or SQL editor
 > - Imports (Command to run down below)
@@ -58,4 +58,4 @@ file.
       PORT: 5432:5432
 ```
 
-**All SQL scripts will be found in the SQL folder**
+**All SQL scripts will be found in the SQL folder and can be run in sequential order**
